@@ -12,6 +12,11 @@ net = caffe.Net('voc-fcn8s/deploy.prototxt', 'voc-fcn8s/fcn8s-heavy-pascal.caffe
 devkitroot = os.path.join(os.path.abspath(os.path.dirname(os.getcwd())), 'VOCdevkit')
 
 
+def check_dir(check_path):
+    if not os.path.exists(check_path):
+        os.makedirs(check_path)
+
+
 def predict_image(id):
     # load image, switch to BGR, subtract mean, and make dims C x H x W for Caffe
 
@@ -53,8 +58,7 @@ def predict_image(id):
         num += 1
         save_path = os.path.join(VOCopts['resdir'],
                                  'Segmentation/{}_{}_cls/'.format(id, VOCopts['testset']))
-        if not os.path.exists(save_path):
-            os.makedirs(save_path)
+        check_dir(save_path)
         resfile = os.path.join(VOCopts['resdir'],
                                'Segmentation/{}_{}_cls/{}.png'.format(id, VOCopts['testset'], imname))
         out_im.putpalette(np.array(colormap).reshape(-1))
@@ -63,8 +67,7 @@ def predict_image(id):
         voc_palette = vis.make_palette(21)
         out_palette_im = Image.fromarray(vis.color_seg(out, voc_palette))
 
-
-
+        check_dir('./valresult/')
         out_palette_im.save('./valresult/out_palette_{}.png'.format(imname))
 
         masked_im = Image.fromarray(vis.vis_seg(im, out, voc_palette))

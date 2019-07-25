@@ -2,13 +2,9 @@
 import os
 import numpy as np
 from numpy.matlib import repmat
-import time
-import cv2
-from PIL import Image
-from matlab2python import matlab_imread
 
-# [gtids,t]=textread(sprintf(VOCopts.seg.imgsetpath,VOCopts.testset),'%s %d');
-devkitroot = os.path.join(os.path.abspath(os.path.dirname(os.getcwd())), 'VOCdevkit')
+
+from matlab2python import matlab_imread
 
 
 def VOCevalseg(VOCopts, id):
@@ -26,16 +22,15 @@ def VOCevalseg(VOCopts, id):
     confcounts = np.zeros(num)
     count = 0
     for imname in gtids:
-    # for imname in ['2007_000323']:
         if not imname:
             continue
         gtfile = os.path.join(VOCopts['datadir'], VOCopts['dataset'], 'SegmentationClass/{}.png'.format(imname))
-        print '读取图片: {}'.format(gtfile)
+        print '读取标签图片: {}'.format(gtfile)
         gtim, gtimap = matlab_imread(gtfile)
         gtim = np.array(gtim).astype(float)
 
         resfile = os.path.join(VOCopts['resdir'], 'VOC2012', 'Segmentation/{}_{}_cls/{}.png'.format(id, VOCopts['testset'], imname))
-        print '读取图片: {}'.format(resfile)
+        print '读取推断图片: {}'.format(resfile)
 
         resim, resmap = matlab_imread(resfile)
         resim = np.array(resim).astype(float)
@@ -63,6 +58,7 @@ def VOCevalseg(VOCopts, id):
 
     conf = 100 * confcounts / repmat(1E-20  + np.asmatrix(confcounts).sum(axis=1), 1, confcounts.shape[1])
     rawcounts = confcounts
+
     accuracies = np.zeros((num, 1))
     print 'Accuracy for each class (intersection/union measure)'
     for j in range(num):
@@ -80,6 +76,7 @@ def VOCevalseg(VOCopts, id):
     print 'Average accuracy: {}'.format(avacc)
 
 if __name__ == '__main__':
+    devkitroot = os.path.join(os.path.abspath(os.path.dirname(os.getcwd())), 'VOCdevkit')
     classes = ['background', 'aeroplane', 'bicycle', 'bird', 'boat',
                'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable',
                'dog', 'horse', 'motorbike', 'person', 'potted plant',
