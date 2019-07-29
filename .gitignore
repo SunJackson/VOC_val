@@ -6,11 +6,13 @@ metastore_db/
 
 # model
 *.caffemodel
+model/
 
 # video
 *.mp4
 
 # image
+segmentation/
 valimage/
 valresult/
 *.jpg

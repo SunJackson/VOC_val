@@ -1,4 +1,7 @@
 # encoding: utf-8
+'''
+caffe模型推断
+'''
 import numpy as np
 from PIL import Image
 import os
@@ -24,8 +27,7 @@ def predict_image(id):
                                           'ImageSets/Segmentation/{}.txt'.format(VOCopts['testset']))
 
     with open(VOCopts_seg_imgsetpath, 'r') as rf:
-        gtids = rf.read()
-        gtids = gtids.split('\n')
+        gtids = [i.replace('\n', '') for i in rf.readlines()]
     num = 1
     total_time = 0
     for imname in gtids:
@@ -37,24 +39,29 @@ def predict_image(id):
 
         im = Image.open(imgpath)
         in_ = np.array(im, dtype=np.float32)
-        in_ = in_[:, :, ::-1]
-        in_ -= np.array((104.00698793, 116.66876762, 122.67891434))
-        in_ = in_.transpose((2, 0, 1))
 
+        in_ = in_[:, :, ::-1]
+
+        in_ -= np.array((104.00698793, 116.66876762, 122.67891434))
+
+        in_ = in_.transpose((2, 0, 1))
         # shape for input (data blob is N x C x H x W), set data
         net.blobs['data'].reshape(1, *in_.shape)
         net.blobs['data'].data[...] = in_
-        # run net and take argmax for prediction
+        # np.save("infer.npy", np.array(net.blobs['data'].data))
+        # run net and take argmax foim = im.resize((500, 500))r prediction
         net.forward()
         out = net.blobs['score'].data[0].argmax(axis=0)
 
+        print out.max()
         out_im = Image.fromarray(out.astype('uint8'))
+        print out_im.mode
 
         end_time = datetime.datetime.now()
         process_time = end_time - start_time
         total_time += process_time.total_seconds()
         print '处理图片第{}张图片{} 耗时{}'.format(num, imname, process_time)
-        print '总耗时{}, 平均耗时{}'.format(total_time , total_time/num)
+        print '总耗时{}, 平均耗时{}'.format(total_time, total_time / num)
         num += 1
         save_path = os.path.join(VOCopts['resdir'],
                                  'Segmentation/{}_{}_cls/'.format(id, VOCopts['testset']))
@@ -73,7 +80,6 @@ def predict_image(id):
         masked_im = Image.fromarray(vis.vis_seg(im, out, voc_palette))
         masked_im.save('./valresult/out_palette_{}_visualization.png'.format(imname))
         print '存储结果图片: {}'.format(resfile)
-
 
 
 if __name__ == '__main__':
