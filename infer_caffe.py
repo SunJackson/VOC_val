@@ -37,7 +37,7 @@ def predict_image(id):
         imgpath = os.path.join(VOCopts['datadir'], VOCopts['dataset'], 'JPEGImages/{}.jpg'.format(imname))
         print '读取图片: {}'.format(imgpath)
 
-        im = Image.open(imgpath)
+        im = Image.open(imgpath).resize((1008,1100))
         in_ = np.array(im, dtype=np.float32)
 
         in_ = in_[:, :, ::-1]

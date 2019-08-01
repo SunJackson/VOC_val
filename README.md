@@ -30,3 +30,8 @@
 
 1. 确认caffe模型推断完相应的图像
 2. 执行 `python VOCevalseg.py`
+
+## 模型转换
+
+1. 将 caffe 模型转换成 tensorflow模型 `https://github.com/microsoft/MMdnn`
+2. 将tensorflow模型转换成 tflite模型 `python tensorflow2tflite.py`
